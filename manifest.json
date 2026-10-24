@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "Darkroom Find — In-Page Search",
+  "version": "1.0.0",
+  "description": "Cinematic lights-off, phosphorescent-glow Ctrl+F in-page search with zero DOM mutation, regex, and smooth navigation.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "action": {
+    "default_popup": "src/options/options.html",
+    "default_title": "Darkroom Find Settings",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/common/config.js",
+        "src/content/search-engine.js",
+        "src/content/spotlight-renderer.js",
+        "src/content/search-ui.js",
+        "src/content/index.js"
+      ],
+      "css": [
+        "src/content/page-highlights.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/content/search-ui.css",
+        "src/content/page-highlights.css",
+        "fonts/Vazirmatn-Medium.woff2"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "commands": {
+    "toggle-spotlight": {
+      "suggested_key": {
+        "default": "Alt+Shift+F",
+        "mac": "Alt+Shift+F"
+      },
+      "description": "Toggle Darkroom Find (Secondary fallback shortcut)"
+    }
+  }
+}

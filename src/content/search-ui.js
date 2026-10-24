@@ -1,0 +1,737 @@
+/**
+ * Darkroom Find - Shadow DOM Search UI
+ * Floating pill interface with glassmorphism, keyboard navigation,
+ * options toggles, search history, and ARIA accessibility.
+ */
+
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.SpotlightSearchUI = factory();
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const FONT_URL = (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL)
+    ? chrome.runtime.getURL('fonts/Vazirmatn-Medium.woff2')
+    : '';
+
+  const SEARCH_UI_CSS = `
+${FONT_URL ? `@font-face {
+  font-family: 'Vazirmatn';
+  src: url('${FONT_URL}') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}` : ''}
+
+:host {
+  all: initial;
+  font-family: 'Vazirmatn', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* Universal Obsidian Glass Tokens */
+  --sf-card-bg: rgba(10, 14, 24, 0.88);
+  --sf-card-border: rgba(255, 255, 255, 0.12);
+  --sf-card-text: #f8fafc;
+  --sf-card-text-muted: #94a3b8;
+  --sf-input-bg: rgba(20, 27, 44, 0.85);
+  --sf-input-border: rgba(255, 255, 255, 0.14);
+  --sf-input-focus-border: var(--sf-glow-color, #00f0ff);
+  --sf-btn-hover: rgba(255, 255, 255, 0.1);
+  --sf-btn-active-bg: rgba(0, 240, 255, 0.2);
+  --sf-btn-active-border: var(--sf-glow-color, #00f0ff);
+  --sf-badge-bg: rgba(20, 27, 44, 0.9);
+  --sf-badge-error-bg: rgba(239, 68, 68, 0.25);
+  --sf-badge-error-text: #fca5a5;
+  --sf-history-bg: rgba(10, 14, 24, 0.96);
+  --sf-history-hover: rgba(51, 65, 85, 0.8);
+  --sf-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--sf-card-border), 0 0 24px rgba(0, 240, 255, 0.12);
+}
+
+.sf-search-container {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+  transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.sf-search-container.sf-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.sf-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--sf-card-bg);
+  border: 1px solid var(--sf-card-border);
+  border-radius: 9999px;
+  box-shadow: var(--sf-shadow);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: var(--sf-card-text);
+  box-sizing: border-box;
+}
+
+.sf-brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sf-glow-color, #00f0ff), var(--sf-current-glow, #ff007f));
+  color: #ffffff;
+  flex-shrink: 0;
+  cursor: grab;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+.sf-brand-icon svg {
+  width: 13px !important;
+  height: 13px !important;
+  fill: currentColor;
+  display: block;
+}
+
+.sf-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sf-input {
+  width: 210px;
+  height: 30px;
+  padding: 0 10px;
+  background: var(--sf-input-bg);
+  border: 1px solid var(--sf-input-border);
+  border-radius: 9999px;
+  color: var(--sf-card-text);
+  font-size: 13px;
+  font-family: 'Vazirmatn', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  direction: auto;
+  unicode-bidi: plaintext;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.sf-input:focus {
+  border-color: var(--sf-input-focus-border);
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.25), 0 0 12px rgba(0, 240, 255, 0.2);
+}
+
+.sf-input::placeholder {
+  color: var(--sf-card-text-muted);
+}
+
+.sf-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--sf-badge-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sf-card-text-muted);
+  white-space: nowrap;
+  box-sizing: border-box;
+  letter-spacing: 0.3px;
+  font-family: 'Inter', system-ui, sans-serif;
+  direction: ltr;
+}
+
+.sf-badge.sf-badge-has-matches {
+  color: var(--sf-card-text);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.sf-badge.sf-badge-error {
+  background: var(--sf-badge-error-bg);
+  color: var(--sf-badge-error-text);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.sf-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--sf-card-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  outline: none;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.sf-btn:hover {
+  background: var(--sf-btn-hover);
+  color: var(--sf-card-text);
+}
+
+.sf-btn:active {
+  transform: scale(0.96);
+}
+
+.sf-btn[aria-pressed="true"] {
+  background: var(--sf-btn-active-bg);
+  color: var(--sf-input-focus-border);
+  border-color: var(--sf-btn-active-border);
+}
+
+.sf-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  fill: currentColor;
+  display: block;
+}
+
+.sf-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--sf-card-border);
+  margin: 0 2px;
+}
+
+.sf-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 6px;
+  background: rgba(10, 15, 25, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2147483647;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.sf-history-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--sf-history-bg);
+  border: 1px solid var(--sf-card-border);
+  border-radius: 12px;
+  box-shadow: var(--sf-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 4px;
+  display: none;
+  flex-direction: column;
+  z-index: 2147483647;
+}
+
+.sf-history-menu.sf-open {
+  display: flex;
+}
+
+.sf-history-header {
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--sf-card-text-muted);
+}
+
+.sf-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--sf-card-text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 100ms ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sf-history-item:hover {
+  background: var(--sf-history-hover);
+}
+
+.sf-history-empty {
+  padding: 10px;
+  text-align: center;
+  color: var(--sf-card-text-muted);
+  font-size: 11px;
+}
+
+.sf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+`;
+
+  class SpotlightSearchUI {
+    constructor(shadowRoot, options = {}) {
+      this.shadowRoot = shadowRoot;
+      this.options = {
+        matchCase: false,
+        wholeWord: false,
+        useRegex: false,
+        multiTerm: false,
+        ...options
+      };
+
+      this.callbacks = {
+        onSearch: options.onSearch || (() => {}),
+        onNext: options.onNext || (() => {}),
+        onPrev: options.onPrev || (() => {}),
+        onClose: options.onClose || (() => {}),
+        onToggleOption: options.onToggleOption || (() => {}),
+        onToggleExclusion: options.onToggleExclusion || (() => {}),
+        onBypassNative: options.onBypassNative || (() => {})
+      };
+
+      this.container = null;
+      this.input = null;
+      this.badge = null;
+      this.historyMenu = null;
+      this.srLive = null;
+      this.debounceTimer = null;
+      this.isOpen = false;
+      this.previousFocusedElement = null;
+
+      this.initDOM();
+      this.bindEvents();
+    }
+
+    initDOM() {
+      // Synchronously inject styles into shadowRoot if not present
+      if (!this.shadowRoot.querySelector('style[data-sf-styles]')) {
+        const styleEl = document.createElement('style');
+        styleEl.setAttribute('data-sf-styles', 'true');
+        styleEl.textContent = SEARCH_UI_CSS;
+        this.shadowRoot.appendChild(styleEl);
+      }
+
+      this.container = document.createElement('div');
+      this.container.className = 'sf-search-container';
+      this.container.setAttribute('role', 'dialog');
+      this.container.setAttribute('aria-label', 'Darkroom In-Page Search');
+      this.container.style.cssText = 'position: fixed; top: 18px; right: 24px; z-index: 2147483647; display: flex; flex-direction: column; align-items: flex-end; pointer-events: auto;';
+
+      this.container.innerHTML = `
+        <div class="sf-pill" style="display: flex; align-items: center; gap: 6px; box-sizing: border-box;">
+          <!-- Spotlight Brand Icon -->
+          <div class="sf-brand-icon" title="Darkroom Find" style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 22px; max-height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+            <svg width="13" height="13" viewBox="0 0 24 24" style="width: 13px !important; height: 13px !important; max-width: 13px; max-height: 13px; display: block; fill: currentColor; flex-shrink: 0;">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+          </div>
+
+          <!-- Search Input Area -->
+          <div class="sf-input-wrap">
+            <input
+              type="text"
+              class="sf-input"
+              placeholder="Find in page..."
+              dir="auto"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              aria-label="Search text"
+            />
+          </div>
+
+          <!-- Match Counter Badge -->
+          <div class="sf-badge" aria-hidden="true">0 / 0</div>
+
+          <!-- Option Toggles -->
+          <div class="sf-btn-group">
+            <button type="button" class="sf-btn sf-toggle-case" data-tooltip="Match Case (Alt+C)" aria-label="Match Case" aria-pressed="false">Aa</button>
+            <button type="button" class="sf-btn sf-toggle-word" data-tooltip="Whole Word (Alt+W)" aria-label="Whole Word" aria-pressed="false">[ab]</button>
+            <button type="button" class="sf-btn sf-toggle-regex" data-tooltip="Regex (Alt+R)" aria-label="Regular Expression" aria-pressed="false">.*</button>
+            <button type="button" class="sf-btn sf-toggle-multi" data-tooltip="Multi-term (Alt+M)" aria-label="Multi-term Highlight" aria-pressed="false">M+</button>
+          </div>
+
+          <div class="sf-divider"></div>
+
+          <!-- Navigation Prev/Next -->
+          <div class="sf-btn-group">
+            <button type="button" class="sf-btn sf-btn-prev" data-tooltip="Previous (Shift+Enter)" aria-label="Previous Match">
+              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+            </button>
+            <button type="button" class="sf-btn sf-btn-next" data-tooltip="Next (Enter)" aria-label="Next Match">
+              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+            </button>
+          </div>
+
+          <div class="sf-divider"></div>
+
+          <!-- Auxiliary Actions -->
+          <div class="sf-btn-group">
+            <button type="button" class="sf-btn sf-btn-history" data-tooltip="Search History" aria-label="Search History">
+              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+            </button>
+            <button type="button" class="sf-btn sf-btn-bypass" data-tooltip="Chrome Native Find (Ctrl+F twice)" aria-label="Use Chrome Native Find">
+              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+            </button>
+            <button type="button" class="sf-btn sf-btn-close" data-tooltip="Close (Esc)" aria-label="Close Search">
+              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- History Dropdown Menu -->
+        <div class="sf-history-menu">
+          <div class="sf-history-header">Recent Searches</div>
+          <div class="sf-history-list"></div>
+        </div>
+
+        <!-- Accessible Screen Reader Announcement -->
+        <div class="sf-sr-only" aria-live="polite"></div>
+      `;
+
+      this.shadowRoot.appendChild(this.container);
+
+      // References
+      this.input = this.container.querySelector('.sf-input');
+      this.badge = this.container.querySelector('.sf-badge');
+      this.historyMenu = this.container.querySelector('.sf-history-menu');
+      this.srLive = this.container.querySelector('.sf-sr-only');
+
+      // Sync initial toggle button states
+      this.setToggleState('.sf-toggle-case', this.options.matchCase);
+      this.setToggleState('.sf-toggle-word', this.options.wholeWord);
+      this.setToggleState('.sf-toggle-regex', this.options.useRegex);
+      this.setToggleState('.sf-toggle-multi', this.options.multiTerm);
+    }
+
+    setToggleState(selector, active) {
+      const btn = this.container.querySelector(selector);
+      if (btn) {
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      }
+    }
+
+    bindEvents() {
+      // Contain composed keyboard/input/clipboard events inside the shadow tree so they
+      // never bubble across the shadow boundary to the host page. Without this, keystrokes
+      // typed into this input are retargeted to the <div> host element and leak to site-wide
+      // hotkey handlers (GitHub, YouTube, Reddit, Notion...), which then fire their own
+      // shortcuts ("/" focus-search, command bar, etc.) over our overlay.
+      const LEAKABLE_EVENTS = [
+        'keydown', 'keyup', 'keypress',
+        'input', 'beforeinput', 'textInput',
+        'compositionstart', 'compositionupdate', 'compositionend',
+        'paste', 'copy', 'cut'
+      ];
+      for (const type of LEAKABLE_EVENTS) {
+        this.shadowRoot.addEventListener(type, (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      // Input typing with ~60ms debounce
+      this.input.addEventListener('input', () => {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+          this.triggerSearch();
+        }, 60);
+      });
+
+      // Keyboard shortcuts in search input
+      this.input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            this.callbacks.onPrev();
+          } else {
+            this.callbacks.onNext();
+          }
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          this.callbacks.onNext();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          this.callbacks.onPrev();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          this.hide();
+        } else if (e.altKey) {
+          // Alt+C, Alt+W, Alt+R, Alt+M toggles
+          const key = e.key.toLowerCase();
+          if (key === 'c') {
+            e.preventDefault();
+            this.toggleOption('matchCase', '.sf-toggle-case');
+          } else if (key === 'w') {
+            e.preventDefault();
+            this.toggleOption('wholeWord', '.sf-toggle-word');
+          } else if (key === 'r') {
+            e.preventDefault();
+            this.toggleOption('useRegex', '.sf-toggle-regex');
+          } else if (key === 'm') {
+            e.preventDefault();
+            this.toggleOption('multiTerm', '.sf-toggle-multi');
+          }
+        }
+      });
+
+      // Toggle buttons click
+      this.container.querySelector('.sf-toggle-case').addEventListener('click', () => {
+        this.toggleOption('matchCase', '.sf-toggle-case');
+      });
+      this.container.querySelector('.sf-toggle-word').addEventListener('click', () => {
+        this.toggleOption('wholeWord', '.sf-toggle-word');
+      });
+      this.container.querySelector('.sf-toggle-regex').addEventListener('click', () => {
+        this.toggleOption('useRegex', '.sf-toggle-regex');
+      });
+      this.container.querySelector('.sf-toggle-multi').addEventListener('click', () => {
+        this.toggleOption('multiTerm', '.sf-toggle-multi');
+      });
+
+      // Navigation clicks
+      this.container.querySelector('.sf-btn-prev').addEventListener('click', () => {
+        this.callbacks.onPrev();
+      });
+      this.container.querySelector('.sf-btn-next').addEventListener('click', () => {
+        this.callbacks.onNext();
+      });
+
+      // History button
+      this.container.querySelector('.sf-btn-history').addEventListener('click', () => {
+        this.toggleHistoryMenu();
+      });
+
+      // Bypass button
+      this.container.querySelector('.sf-btn-bypass').addEventListener('click', () => {
+        this.callbacks.onBypassNative();
+      });
+
+      // Close button
+      this.container.querySelector('.sf-btn-close').addEventListener('click', () => {
+        this.hide();
+      });
+
+      // Click outside pill to close history menu
+      this.container.addEventListener('click', (e) => {
+        if (!e.target.closest('.sf-btn-history') && !e.target.closest('.sf-history-menu')) {
+          this.closeHistoryMenu();
+        }
+      });
+    }
+
+    toggleOption(optionKey, buttonSelector) {
+      this.options[optionKey] = !this.options[optionKey];
+      this.setToggleState(buttonSelector, this.options[optionKey]);
+      this.callbacks.onToggleOption(optionKey, this.options[optionKey]);
+      this.triggerSearch();
+    }
+
+    triggerSearch() {
+      const query = this.input.value;
+      this.callbacks.onSearch(query, {
+        matchCase: this.options.matchCase,
+        wholeWord: this.options.wholeWord,
+        useRegex: this.options.useRegex,
+        multiTerm: this.options.multiTerm
+      });
+    }
+
+    async toggleHistoryMenu() {
+      if (this.historyMenu.classList.contains('sf-open')) {
+        this.closeHistoryMenu();
+        return;
+      }
+
+      let history = [];
+      if (typeof SpotlightConfig !== 'undefined') {
+        const settings = await SpotlightConfig.getSettings();
+        history = settings.searchHistory || [];
+      }
+
+      const listContainer = this.historyMenu.querySelector('.sf-history-list');
+      listContainer.innerHTML = '';
+
+      if (history.length === 0) {
+        listContainer.innerHTML = '<div class="sf-history-empty">No recent searches</div>';
+      } else {
+        history.forEach((query) => {
+          const item = document.createElement('div');
+          item.className = 'sf-history-item';
+          item.textContent = query;
+          item.addEventListener('click', () => {
+            this.input.value = query;
+            this.closeHistoryMenu();
+            this.input.focus();
+            this.triggerSearch();
+          });
+          listContainer.appendChild(item);
+        });
+      }
+
+      this.historyMenu.classList.add('sf-open');
+    }
+
+    closeHistoryMenu() {
+      if (this.historyMenu) {
+        this.historyMenu.classList.remove('sf-open');
+      }
+    }
+
+    /**
+     * Update match counter badge & accessibility announcement
+     */
+    updateStatus({ current, total, capped, error }) {
+      this.badge.classList.remove('sf-badge-error', 'sf-badge-has-matches');
+
+      if (error) {
+        this.badge.textContent = 'Regex Error';
+        this.badge.classList.add('sf-badge-error');
+        this.badge.title = error;
+        this.srLive.textContent = `Search error: ${error}`;
+        return;
+      }
+
+      this.badge.title = '';
+
+      if (total === 0) {
+        this.badge.textContent = '0 / 0';
+        this.srLive.textContent = 'No matches found';
+        return;
+      }
+
+      this.badge.classList.add('sf-badge-has-matches');
+      const curDisplay = current >= 0 ? current + 1 : 0;
+      const totalDisplay = capped ? `${total}+` : `${total}`;
+
+      this.badge.textContent = `${curDisplay} / ${totalDisplay}`;
+      this.srLive.textContent = `Match ${curDisplay} of ${totalDisplay}`;
+    }
+
+    /**
+     * Unified Obsidian Glass aesthetic is self-contained and permanent.
+     * Preserved as a no-op for backward compatibility.
+     */
+    applyTheme() {}
+
+    /**
+     * Show search UI and capture preselected text
+     */
+    show(initialQuery = '', activeElement = null) {
+      if (this.isOpen) {
+        // If already open, select all input text
+        this.input.focus();
+        this.input.select();
+        return;
+      }
+
+      this.isOpen = true;
+      this.previousFocusedElement = activeElement || document.activeElement;
+
+      this.container.classList.add('sf-active');
+
+      if (initialQuery) {
+        this.input.value = initialQuery;
+      }
+
+      // Defer focus slightly to ensure smooth render
+      requestAnimationFrame(() => {
+        this.input.focus();
+        this.input.select();
+        if (this.input.value) {
+          this.triggerSearch();
+        }
+      });
+    }
+
+    /**
+     * Hide search UI and restore previous focus
+     */
+    hide() {
+      if (!this.isOpen) return;
+      this.isOpen = false;
+      this.closeHistoryMenu();
+
+      this.container.classList.remove('sf-active');
+      this.callbacks.onClose();
+
+      if (this.previousFocusedElement && typeof this.previousFocusedElement.focus === 'function') {
+        try {
+          this.previousFocusedElement.focus();
+        } catch {}
+      }
+      this.previousFocusedElement = null;
+    }
+
+    destroy() {
+      this.hide();
+      if (this.container && this.container.parentElement) {
+        this.container.parentElement.removeChild(this.container);
+      }
+    }
+  }
+
+  return SpotlightSearchUI;
+});

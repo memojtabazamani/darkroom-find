@@ -1,0 +1,111 @@
+# ================================
+# Darkroom Find — .gitignore
+# ================================
+
+# ---------------------------------
+# Dependencies
+# ---------------------------------
+node_modules/
+jspm_packages/
+bower_components/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ---------------------------------
+# Build output & tooling caches
+# ---------------------------------
+dist/
+build/
+out/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.npm/
+.tsbuildinfo
+*.tsbuildinfo
+
+# ---------------------------------
+# Environment / secrets
+# ---------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------------------------------
+# Packaged extensions
+# ---------------------------------
+*.crx
+*.xpi
+*.zip
+releases/
+
+# ---------------------------------
+# Logs
+# ---------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---------------------------------
+# Testing / coverage
+# ---------------------------------
+coverage/
+.nyc_output/
+*.lcov
+
+# ---------------------------------
+# Editors & IDEs
+# ---------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*~
+
+# ---------------------------------
+# OS files
+# ---------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*:Zone.Identifier
+
+# ---------------------------------
+# Claude Code
+# ---------------------------------
+.claude/settings.local.json
+
+# ---------------------------------
+# Docs
+# ---------------------------------
+docs/
+
+# ---------------------------------
+# Archived source files (not shipped)
+# ---------------------------------
+archive/
