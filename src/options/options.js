@@ -90,21 +90,67 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
+   * Helper to convert hex color to rgba string
+   */
+  function hexToRgba(hex, alpha) {
+    if (!hex) return `rgba(227, 199, 122, ${alpha})`;
+    let clean = String(hex).replace('#', '').trim();
+    if (clean.length === 3) {
+      clean = clean.split('').map(c => c + c).join('');
+    }
+    const num = parseInt(clean, 16);
+    if (isNaN(num)) return `rgba(227, 199, 122, ${alpha})`;
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  /**
+   * Sync active outline rings on swatches
+   */
+  function syncActiveSwatches() {
+    const currentGlow = (glowColorInput.value || '').toLowerCase();
+    const currentActiveGlow = (currentGlowInput.value || '').toLowerCase();
+
+    document.querySelectorAll('#glowSwatches .sf-swatch').forEach((swatch) => {
+      const c = (swatch.dataset.color || '').toLowerCase();
+      if (c === currentGlow) {
+        swatch.classList.add('sf-swatch-active');
+      } else {
+        swatch.classList.remove('sf-swatch-active');
+      }
+    });
+
+    document.querySelectorAll('#currentSwatches .sf-swatch').forEach((swatch) => {
+      const c = (swatch.dataset.color || '').toLowerCase();
+      if (c === currentActiveGlow) {
+        swatch.classList.add('sf-swatch-active');
+      } else {
+        swatch.classList.remove('sf-swatch-active');
+      }
+    });
+  }
+
+  /**
    * Update live preview styles according to current values
    */
   function updateLivePreview() {
     const opacity = (typeof settings.dimOpacity === 'number' ? settings.dimOpacity : 0.85);
-    const rgb = '5, 7, 15'; // Universal Obsidian Glass dim color
+    const rgb = '11, 12, 14'; // Neutral near-black dim layer
     previewBox.style.backgroundColor = `rgba(${rgb}, ${opacity})`;
 
-    const glow = glowColorInput.value;
-    const currentGlow = currentGlowInput.value;
+    const matchColor = glowColorInput.value || '#E3C77A';
+    const activeColor = currentGlowInput.value || '#E8956B';
 
-    prevMatch.style.backgroundColor = `${glow}44`;
-    prevMatch.style.boxShadow = `0 0 10px ${glow}`;
+    prevMatch.style.backgroundColor = hexToRgba(matchColor, 0.40);
+    prevMatch.style.boxShadow = 'none';
 
-    prevCurrent.style.backgroundColor = `${currentGlow}88`;
-    prevCurrent.style.boxShadow = `0 0 14px ${currentGlow}`;
+    prevCurrent.style.backgroundColor = activeColor;
+    prevCurrent.style.color = '#1A1410';
+    prevCurrent.style.boxShadow = 'none';
+
+    syncActiveSwatches();
   }
 
   /**
@@ -205,10 +251,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     dimOpacityVal.textContent = `${dimPct}%`;
 
     // Glow colors
-    glowColorInput.value = settings.glowColor || '#00f0ff';
+    glowColorInput.value = settings.glowColor || '#E3C77A';
     glowColorHex.textContent = glowColorInput.value;
 
-    currentGlowInput.value = settings.currentGlowColor || '#ff007f';
+    currentGlowInput.value = settings.currentGlowColor || '#E8956B';
     currentGlowHex.textContent = currentGlowInput.value;
 
     // Max highlights

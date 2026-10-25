@@ -1,7 +1,7 @@
 /**
  * Darkroom Find - Shadow DOM Search UI Styles
  * Encapsulated inside the extension's Shadow Root.
- * Unified Cinematic Obsidian Glass Aesthetic with Refined English & Persian Typography.
+ * Minimal, compact, calm design with high-fidelity typography.
  */
 
 @font-face {
@@ -15,38 +15,54 @@
 
 :host {
   all: initial;
-  font-family: 'Vazirmatn', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;
   font-size: 13px;
   line-height: 1.4;
-  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 
-  /* Universal Obsidian Glass Tokens */
-  --sf-card-bg: rgba(10, 14, 24, 0.88);
-  --sf-card-border: rgba(255, 255, 255, 0.12);
-  --sf-card-text: #f8fafc;
-  --sf-card-text-muted: #94a3b8;
-  --sf-input-bg: rgba(20, 27, 44, 0.85);
-  --sf-input-border: rgba(255, 255, 255, 0.14);
-  --sf-input-focus-border: var(--sf-glow-color, #00f0ff);
-  --sf-btn-hover: rgba(255, 255, 255, 0.1);
-  --sf-btn-active-bg: rgba(0, 240, 255, 0.2);
-  --sf-btn-active-border: var(--sf-glow-color, #00f0ff);
-  --sf-badge-bg: rgba(20, 27, 44, 0.9);
-  --sf-badge-error-bg: rgba(239, 68, 68, 0.25);
-  --sf-badge-error-text: #fca5a5;
-  --sf-history-bg: rgba(10, 14, 24, 0.96);
-  --sf-history-hover: rgba(51, 65, 85, 0.8);
-  --sf-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--sf-card-border), 0 0 24px rgba(0, 240, 255, 0.12);
+  /* Design Tokens - Dark (default) */
+  --bg: #16171A;
+  --surface: #1D1F23;
+  --surface-2: #25282D;
+  --border: #2E3238;
+  --border-strong: #3A3F46;
+  --text: #E6E8EB;
+  --text-muted: #9AA1AB;
+  --text-faint: #6B727C;
+  --accent: #8FA8C8;
+  --accent-fg: #14181D;
+  --accent-soft: rgba(143, 168, 200, 0.14);
+  --danger: #C97B7B;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --sf-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :host {
+    /* Design Tokens - Light (auto) */
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --surface-2: #F0F0ED;
+    --border: #E3E3DF;
+    --border-strong: #D0D0CB;
+    --text: #1B1D20;
+    --text-muted: #5C626B;
+    --text-faint: #8A9099;
+    --accent: #4F6D93;
+    --accent-fg: #FFFFFF;
+    --accent-soft: rgba(79, 109, 147, 0.12);
+    --danger: #C97B7B;
+  }
 }
 
 /* Floating Search Pill Container */
 .sf-search-container {
   position: fixed;
-  top: 18px;
-  right: 24px;
+  top: 16px;
+  right: 20px;
   z-index: 2147483647;
   display: flex;
   flex-direction: column;
@@ -55,77 +71,76 @@
   user-select: none;
   -webkit-user-select: none;
   opacity: 0;
-  transform: translateY(-12px) scale(0.98);
-  transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(-4px);
+  transition: opacity 140ms ease-out, transform 140ms ease-out;
   font-family: inherit;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color: var(--text);
 }
 
 .sf-search-container.sf-active {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
+/* Compact Floating Pill (40px height, max 560px) */
 .sf-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: var(--sf-card-bg);
-  border: 1px solid var(--sf-card-border);
-  border-radius: 9999px;
-  box-shadow: var(--sf-shadow);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  color: var(--sf-card-text);
+  gap: 4px;
+  height: 40px;
+  max-width: 560px;
+  padding: 0 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  color: var(--text);
   box-sizing: border-box;
 }
 
-/* Drag / Brand indicator */
+/* Brand Icon (20px flat magnifier in text-muted, no gradient, no glow) */
 .sf-brand-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--sf-glow-color, #00f0ff), var(--sf-current-glow, #ff007f));
-  color: #ffffff;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  color: var(--text-muted);
   flex-shrink: 0;
-  cursor: grab;
-  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 .sf-brand-icon svg {
-  width: 13px !important;
-  height: 13px !important;
+  width: 15px;
+  height: 15px;
   fill: currentColor;
+  display: block;
 }
 
-/* Input Area */
+/* Search Input Area */
 .sf-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 140px;
 }
 
 .sf-input {
-  width: 210px;
-  height: 30px;
+  width: 100%;
+  height: 28px;
   padding: 0 10px;
-  background: var(--sf-input-bg);
-  border: 1px solid var(--sf-input-border);
-  border-radius: 9999px;
-  color: var(--sf-card-text);
-  font-size: 13px;
-  font-family: 'Vazirmatn', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 120ms ease-out;
   direction: auto;
   unicode-bidi: plaintext;
   -webkit-font-smoothing: antialiased;
@@ -133,100 +148,121 @@
 }
 
 .sf-input:focus {
-  border-color: var(--sf-input-focus-border);
-  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.25), 0 0 12px rgba(0, 240, 255, 0.2);
+  border-color: var(--accent);
+}
+
+.sf-input::selection {
+  background: var(--accent-soft);
+  color: var(--text);
 }
 
 .sf-input::placeholder {
-  color: var(--sf-card-text-muted);
+  color: var(--text-faint);
 }
 
-/* Match Counter Badge */
+/* Match Counter (plain mono text, no pill background, min-width 44px) */
 .sf-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 58px;
-  height: 24px;
-  padding: 0 8px;
-  background: var(--sf-badge-bg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sf-card-text-muted);
+  min-width: 44px;
+  height: 28px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--sf-font-mono);
+  color: var(--text-muted);
   white-space: nowrap;
   box-sizing: border-box;
-  letter-spacing: 0.3px;
-  font-family: 'Inter', system-ui, sans-serif;
+  text-align: center;
   direction: ltr;
 }
 
 .sf-badge.sf-badge-has-matches {
-  color: var(--sf-card-text);
-  border-color: rgba(0, 240, 255, 0.3);
+  color: var(--text);
+}
+
+.sf-badge.sf-badge-no-matches {
+  color: var(--danger);
 }
 
 .sf-badge.sf-badge-error {
-  background: var(--sf-badge-error-bg);
-  color: var(--sf-badge-error-text);
-  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--danger);
 }
 
-/* Buttons and Action Icons */
+/* Button Groups */
 .sf-btn-group {
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
+/* Toggles & Icon Buttons (28x28px, radius 6px) */
 .sf-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   padding: 0;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 6px;
-  color: var(--sf-card-text-muted);
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
+  font-weight: 500;
+  font-family: var(--sf-font-mono);
   outline: none;
-  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+  transition: background-color 120ms ease-out, color 120ms ease-out, border-color 120ms ease-out;
   position: relative;
   box-sizing: border-box;
 }
 
 .sf-btn:hover {
-  background: var(--sf-btn-hover);
-  color: var(--sf-card-text);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .sf-btn:active {
-  transform: scale(0.96);
+  background: var(--border);
 }
 
+.sf-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Active Toggle: accent-soft background, accent text & 1px accent border */
 .sf-btn[aria-pressed="true"] {
-  background: var(--sf-btn-active-bg);
-  color: var(--sf-input-focus-border);
-  border-color: var(--sf-btn-active-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .sf-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   fill: currentColor;
+  display: block;
 }
 
+/* Close button hover danger color */
+.sf-btn.sf-btn-close:hover {
+  color: var(--danger);
+}
+
+/* Hairline Divider */
 .sf-divider {
   width: 1px;
   height: 16px;
-  background: var(--sf-card-border);
-  margin: 0 2px;
+  background: var(--border);
+  margin: 0 4px;
+  flex-shrink: 0;
 }
 
 /* Tooltip on hover */
@@ -237,33 +273,31 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 3px 6px;
-  background: rgba(10, 14, 24, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: #ffffff;
-  font-size: 10px;
+  color: var(--text);
+  font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
   z-index: 2147483647;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  font-family: 'Vazirmatn', 'Inter', system-ui, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;
 }
 
-/* Search History Dropdown */
+/* Search History Dropdown Menu */
 .sf-history-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
   width: 240px;
   max-height: 220px;
   overflow-y: auto;
-  background: var(--sf-history-bg);
-  border: 1px solid var(--sf-card-border);
-  border-radius: 12px;
-  box-shadow: var(--sf-shadow);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   padding: 4px;
   display: none;
   flex-direction: column;
@@ -276,24 +310,24 @@
 
 .sf-history-header {
   padding: 6px 8px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--sf-card-text-muted);
-  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  font-family: inherit;
 }
 
 .sf-history-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: var(--sf-card-text);
-  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 12.5px;
   cursor: pointer;
-  transition: background-color 100ms ease;
+  transition: background-color 100ms ease-out;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -301,17 +335,17 @@
 }
 
 .sf-history-item:hover {
-  background: var(--sf-history-hover);
+  background: var(--surface-2);
 }
 
 .sf-history-empty {
   padding: 10px;
   text-align: center;
-  color: var(--sf-card-text-muted);
-  font-size: 11px;
+  color: var(--text-faint);
+  font-size: 11.5px;
 }
 
-/* Screen reader only utility */
+/* Accessibility */
 .sf-sr-only {
   position: absolute;
   width: 1px;
@@ -321,4 +355,14 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-search-container,
+  .sf-btn,
+  .sf-input,
+  .sf-history-item {
+    transition: none !important;
+    transform: none !important;
+  }
 }

@@ -14,8 +14,8 @@
     ? await SpotlightConfig.getSettings()
     : {
         dimOpacity: 0.85,
-        glowColor: '#00f0ff',
-        currentGlowColor: '#ff007f',
+        glowColor: '#E3C77A',
+        currentGlowColor: '#E8956B',
         maxHighlights: 5000,
         excludedDomains: ['docs.google.com', 'vscode.dev'],
         searchHistory: [],
@@ -48,18 +48,34 @@
 
   const shadowRoot = hostElement.attachShadow({ mode: 'open' });
 
+  // Load Vazirmatn at the document level so it is available inside the Shadow DOM.
+  if (!document.getElementById('spotlight-find-font')) {
+    const fontStyle = document.createElement('style');
+    fontStyle.id = 'spotlight-find-font';
+    fontStyle.textContent = `
+      @font-face {
+        font-family: 'Vazirmatn';
+        src: url('${chrome.runtime.getURL('fonts/Vazirmatn-Medium.woff2')}') format('woff2');
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+    `;
+    (document.head || document.documentElement).appendChild(fontStyle);
+  }
+
   // Inject search-ui.css into Shadow DOM
   const styleLink = document.createElement('link');
   styleLink.rel = 'stylesheet';
   styleLink.href = chrome.runtime.getURL('src/content/search-ui.css');
   shadowRoot.appendChild(styleLink);
 
-  // Instantiate Spotlight Renderer with Obsidian Glass aesthetic
+  // Instantiate Spotlight Renderer with minimal calm aesthetic
   const renderer = new SpotlightRenderer(shadowRoot, {
     glowColor: settings.glowColor,
     currentGlowColor: settings.currentGlowColor,
     dimOpacity: typeof settings.dimOpacity === 'number' ? settings.dimOpacity : 0.85,
-    dimRgb: '5, 7, 15'
+    dimRgb: '11, 12, 14'
   });
 
   // State management
@@ -248,7 +264,7 @@
         glowColor: settings.glowColor,
         currentGlowColor: settings.currentGlowColor,
         dimOpacity: typeof settings.dimOpacity === 'number' ? settings.dimOpacity : 0.85,
-        dimRgb: '5, 7, 15'
+        dimRgb: '11, 12, 14'
       });
     });
   }

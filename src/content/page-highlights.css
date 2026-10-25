@@ -1,70 +1,47 @@
 /**
  * Darkroom Find - Page Highlights Styles
  * Injected at document root to style native CSS.highlights ranges.
+ * Minimal, flat, low-chroma styling with zero text-shadow glows.
  */
 
 :root {
-  --sf-match-text: #ffffff;
-  --sf-match-bg: rgba(0, 240, 255, 0.4);
-  --sf-glow-color: #00f0ff;
-
-  --sf-current-text: #ffffff;
-  --sf-current-bg: rgba(255, 0, 127, 0.65);
-  --sf-current-glow: #ff007f;
+  --sf-glow-color: #E3C77A;
+  --sf-match-bg: rgba(227, 199, 122, 0.40);
+  --sf-current-glow: #E8956B;
+  --sf-current-bg: #E8956B;
+  --sf-current-text: #1A1410;
 }
 
 ::highlight(spotlight-match) {
-  color: var(--sf-match-text, #ffffff) !important;
-  background-color: var(--sf-match-bg, rgba(0, 240, 255, 0.4)) !important;
-  text-shadow: 0 0 4px var(--sf-glow-color, #00f0ff), 0 0 10px var(--sf-glow-color, #00f0ff) !important;
+  background-color: var(--sf-match-bg, rgba(227, 199, 122, 0.40)) !important;
 }
 
 ::highlight(spotlight-current) {
-  color: var(--sf-current-text, #ffffff) !important;
-  background-color: var(--sf-current-bg, rgba(255, 0, 127, 0.65)) !important;
-  text-shadow: 0 0 6px var(--sf-current-glow, #ff007f), 0 0 16px var(--sf-current-glow, #ff007f) !important;
+  color: var(--sf-current-text, #1A1410) !important;
+  background-color: var(--sf-current-bg, #E8956B) !important;
 }
 
-/* Multi-term highlight groups */
+/* Multi-term highlight groups (muted, low-chroma, no text-shadow) */
 ::highlight(spotlight-term-0) {
-  color: #ffffff !important;
-  background-color: rgba(0, 240, 255, 0.4) !important;
-  text-shadow: 0 0 4px #00f0ff, 0 0 10px #00f0ff !important;
+  background-color: rgba(227, 199, 122, 0.40) !important;
 }
 
 ::highlight(spotlight-term-1) {
-  color: #ffffff !important;
-  background-color: rgba(57, 255, 20, 0.4) !important;
-  text-shadow: 0 0 4px #39ff14, 0 0 10px #39ff14 !important;
+  background-color: rgba(156, 197, 161, 0.40) !important;
 }
 
 ::highlight(spotlight-term-2) {
-  color: #ffffff !important;
-  background-color: rgba(255, 183, 3, 0.4) !important;
-  text-shadow: 0 0 4px #ffb703, 0 0 10px #ffb703 !important;
+  background-color: rgba(143, 179, 217, 0.40) !important;
 }
 
 ::highlight(spotlight-term-3) {
-  color: #ffffff !important;
-  background-color: rgba(181, 23, 158, 0.4) !important;
-  text-shadow: 0 0 4px #b5179e, 0 0 10px #b5179e !important;
+  background-color: rgba(201, 160, 220, 0.40) !important;
 }
 
 ::highlight(spotlight-term-4) {
-  color: #ffffff !important;
-  background-color: rgba(0, 168, 255, 0.4) !important;
-  text-shadow: 0 0 4px #00a8ff, 0 0 10px #00a8ff !important;
+  background-color: rgba(232, 165, 165, 0.40) !important;
 }
 
 ::highlight(spotlight-term-5) {
-  color: #ffffff !important;
-  background-color: rgba(255, 0, 127, 0.4) !important;
-  text-shadow: 0 0 4px #ff007f, 0 0 10px #ff007f !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::highlight(spotlight-match),
-  ::highlight(spotlight-current) {
-    text-shadow: none !important;
-  }
+  background-color: rgba(184, 184, 176, 0.40) !important;
 }

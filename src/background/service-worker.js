@@ -18,8 +18,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       const current = await chrome.storage.sync.get(null);
       const defaults = (typeof SpotlightConfig !== 'undefined' && SpotlightConfig.DEFAULT_SETTINGS) || {
         dimOpacity: 0.85,
-        glowColor: '#00f0ff',
-        currentGlowColor: '#ff007f',
+        glowColor: '#E3C77A',
+        currentGlowColor: '#E8956B',
         maxHighlights: 5000,
         excludedDomains: ['docs.google.com', 'vscode.dev', 'github.dev', 'colab.research.google.com'],
         searchHistory: [],

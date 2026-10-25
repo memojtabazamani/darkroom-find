@@ -8,32 +8,32 @@
 </head>
 <body>
   <div class="sf-options-app">
-    <!-- Header -->
+    <!-- Header (~44px) -->
     <header class="sf-options-header">
       <div class="sf-options-brand">
-        <div class="sf-options-logo">
+        <div class="sf-options-logo" title="Darkroom Find">
           <svg viewBox="0 0 24 24">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 14z"/>
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
           </svg>
         </div>
         <div>
           <h1>Darkroom Find</h1>
-          <p class="sf-subtitle">Cinematic Obsidian In-Page Search</p>
+          <p class="sf-subtitle">In-Page Search</p>
         </div>
       </div>
       <div class="sf-header-badge" id="versionBadge">v1.0.0</div>
     </header>
 
-    <!-- High-Prominence Shortcut Hero Banner -->
-    <section class="sf-hero-card" id="shortcutHero">
-      <div class="sf-hero-glow-layer"></div>
-      <div class="sf-hero-content">
-        <span class="sf-hero-tag">QUICK ACTIVATION</span>
+    <!-- Unified Options Surface -->
+    <main class="sf-options-panel">
+      <!-- Quick Activation Section -->
+      <section class="sf-section" id="shortcutHero">
+        <div class="sf-section-header">QUICK ACTIVATION</div>
         <div class="sf-hero-primary-row">
           <div class="sf-hero-keys" id="primaryKeyGroup">
-            <kbd class="sf-kbd sf-kbd-lg" id="primaryModKey">Ctrl</kbd>
+            <kbd class="sf-kbd" id="primaryModKey">Ctrl</kbd>
             <span class="sf-kbd-plus">+</span>
-            <kbd class="sf-kbd sf-kbd-lg" id="primaryMainKey">F</kbd>
+            <kbd class="sf-kbd" id="primaryMainKey">F</kbd>
           </div>
           <div class="sf-hero-label">
             <strong>Primary Search</strong>
@@ -42,7 +42,7 @@
         </div>
 
         <div class="sf-hero-secondary-row">
-          <div class="sf-hero-sub-label">Fallback Command:</div>
+          <span class="sf-hero-sub-label">Fallback:</span>
           <div class="sf-hero-keys-sm" id="secondaryKeyGroup">
             <kbd class="sf-kbd sf-kbd-sm" id="secKey1">Alt</kbd>
             <span class="sf-kbd-plus-sm">+</span>
@@ -50,112 +50,108 @@
             <span class="sf-kbd-plus-sm">+</span>
             <kbd class="sf-kbd sf-kbd-sm" id="secKey3">F</kbd>
           </div>
-          <div class="sf-hero-sub-hint">Works even if page captures Ctrl+F</div>
+          <span class="sf-hero-sub-hint">Works even if page captures Ctrl+F</span>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Current Tab Quick Toggle -->
-    <section class="sf-card sf-site-toggle-card" id="siteToggleCard">
-      <div class="sf-site-info">
-        <div class="sf-site-status-dot" id="siteStatusDot"></div>
-        <div>
-          <div class="sf-site-name" id="siteHostLabel">Current Website</div>
-          <div class="sf-site-desc" id="siteDescLabel">Checking site status...</div>
+      <!-- Current Tab Quick Toggle -->
+      <section class="sf-section sf-site-toggle-section" id="siteToggleCard">
+        <div class="sf-site-info">
+          <div class="sf-site-status-dot" id="siteStatusDot"></div>
+          <div>
+            <div class="sf-site-name" id="siteHostLabel">Current Website</div>
+            <div class="sf-site-desc" id="siteDescLabel">Checking site status...</div>
+          </div>
         </div>
-      </div>
-      <button type="button" class="sf-site-btn" id="siteToggleBtn">Toggle</button>
-    </section>
+        <button type="button" class="sf-site-btn" id="siteToggleBtn">Toggle</button>
+      </section>
 
-    <!-- Live Preview Sandbox -->
-    <section class="sf-card sf-preview-card">
-      <div class="sf-card-title">Live Preview (Obsidian Glass)</div>
-      <div class="sf-preview-box" id="previewBox">
-        <div class="sf-preview-text">
-          Text on page dims into darkness while <span class="sf-preview-match" id="prevMatch">matching phrases</span> illuminate with phosphorescent <span class="sf-preview-current" id="prevCurrent">active glow</span>.
+      <!-- Live Preview -->
+      <section class="sf-section">
+        <div class="sf-section-header">LIVE PREVIEW</div>
+        <div class="sf-preview-box" id="previewBox">
+          <div class="sf-preview-text">
+            Text on page dims into darkness while <span class="sf-preview-match" id="prevMatch">matching phrases</span> illuminate with <span class="sf-preview-current" id="prevCurrent">active match</span>.
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Unified Dimming & Opacity Slider -->
-    <section class="sf-card">
-      <div class="sf-card-title">Dim Layer Opacity</div>
-      <div class="sf-field-group">
+      <!-- Dim Layer Opacity -->
+      <section class="sf-section">
         <div class="sf-field-row">
           <label for="dimOpacity">Darkroom Dim Intensity</label>
-          <span class="sf-val-badge" id="dimOpacityVal">85%</span>
+          <span class="sf-val-text" id="dimOpacityVal">85%</span>
         </div>
         <input type="range" id="dimOpacity" min="30" max="95" value="85" class="sf-slider">
         <p class="sf-hint">Controls how deeply the host webpage dims into darkness during search.</p>
-      </div>
-    </section>
+      </section>
 
-    <!-- Neon Glow & Accent Colors -->
-    <section class="sf-card">
-      <div class="sf-card-title">Phosphorescent Neon Accents</div>
+      <!-- Highlight Colors -->
+      <section class="sf-section">
+        <div class="sf-section-header">HIGHLIGHT COLORS</div>
 
-      <!-- Primary Match Glow -->
-      <div class="sf-color-section">
-        <div class="sf-field-row">
-          <label for="glowColorInput">Matches Glow</label>
-          <div class="sf-color-picker-wrap">
-            <input type="color" id="glowColorInput" value="#00f0ff">
-            <span class="sf-color-hex" id="glowColorHex">#00f0ff</span>
+        <!-- Matches Color -->
+        <div class="sf-color-block">
+          <div class="sf-field-row">
+            <label for="glowColorInput">Matches</label>
+            <div class="sf-color-picker-wrap">
+              <input type="color" id="glowColorInput" value="#E3C77A">
+              <span class="sf-color-hex" id="glowColorHex">#E3C77A</span>
+            </div>
+          </div>
+          <div class="sf-swatches" id="glowSwatches">
+            <button type="button" class="sf-swatch" data-color="#E3C77A" style="background:#E3C77A" title="Sand"></button>
+            <button type="button" class="sf-swatch" data-color="#9CC5A1" style="background:#9CC5A1" title="Sage"></button>
+            <button type="button" class="sf-swatch" data-color="#8FB3D9" style="background:#8FB3D9" title="Slate"></button>
+            <button type="button" class="sf-swatch" data-color="#C9A0DC" style="background:#C9A0DC" title="Lavender"></button>
+            <button type="button" class="sf-swatch" data-color="#E8A5A5" style="background:#E8A5A5" title="Coral"></button>
+            <button type="button" class="sf-swatch" data-color="#B8B8B0" style="background:#B8B8B0" title="Warm Gray"></button>
           </div>
         </div>
-        <div class="sf-swatches" id="glowSwatches">
-          <button type="button" class="sf-swatch" data-color="#00f0ff" style="background:#00f0ff" title="Cyan"></button>
-          <button type="button" class="sf-swatch" data-color="#39ff14" style="background:#39ff14" title="Green"></button>
-          <button type="button" class="sf-swatch" data-color="#ffb703" style="background:#ffb703" title="Amber"></button>
-          <button type="button" class="sf-swatch" data-color="#b5179e" style="background:#b5179e" title="Violet"></button>
-          <button type="button" class="sf-swatch" data-color="#ff007f" style="background:#ff007f" title="Pink"></button>
-          <button type="button" class="sf-swatch" data-color="#00a8ff" style="background:#00a8ff" title="Blue"></button>
-        </div>
-      </div>
 
-      <!-- Active Current Match Glow -->
-      <div class="sf-color-section" style="margin-top: 16px;">
-        <div class="sf-field-row">
-          <label for="currentGlowInput">Active Match Accent</label>
-          <div class="sf-color-picker-wrap">
-            <input type="color" id="currentGlowInput" value="#ff007f">
-            <span class="sf-color-hex" id="currentGlowHex">#ff007f</span>
+        <!-- Active Match Color -->
+        <div class="sf-color-block" style="margin-top: 12px;">
+          <div class="sf-field-row">
+            <label for="currentGlowInput">Active Match</label>
+            <div class="sf-color-picker-wrap">
+              <input type="color" id="currentGlowInput" value="#E8956B">
+              <span class="sf-color-hex" id="currentGlowHex">#E8956B</span>
+            </div>
+          </div>
+          <div class="sf-swatches" id="currentSwatches">
+            <button type="button" class="sf-swatch" data-color="#E8956B" style="background:#E8956B" title="Terracotta"></button>
+            <button type="button" class="sf-swatch" data-color="#7FB8B0" style="background:#7FB8B0" title="Teal"></button>
+            <button type="button" class="sf-swatch" data-color="#D9C06A" style="background:#D9C06A" title="Gold"></button>
+            <button type="button" class="sf-swatch" data-color="#A58FD6" style="background:#A58FD6" title="Purple"></button>
+            <button type="button" class="sf-swatch" data-color="#D98A9E" style="background:#D98A9E" title="Rose"></button>
+            <button type="button" class="sf-swatch" data-color="#8DA3C4" style="background:#8DA3C4" title="Steel Blue"></button>
           </div>
         </div>
-        <div class="sf-swatches" id="currentSwatches">
-          <button type="button" class="sf-swatch" data-color="#ff007f" style="background:#ff007f" title="Pink"></button>
-          <button type="button" class="sf-swatch" data-color="#00f0ff" style="background:#00f0ff" title="Cyan"></button>
-          <button type="button" class="sf-swatch" data-color="#39ff14" style="background:#39ff14" title="Green"></button>
-          <button type="button" class="sf-swatch" data-color="#ffb703" style="background:#ffb703" title="Amber"></button>
-          <button type="button" class="sf-swatch" data-color="#b5179e" style="background:#b5179e" title="Violet"></button>
-          <button type="button" class="sf-swatch" data-color="#00a8ff" style="background:#00a8ff" title="Blue"></button>
+      </section>
+
+      <!-- Performance Limit -->
+      <section class="sf-section">
+        <div class="sf-field-row">
+          <label for="maxHighlights">Max Matches Cap</label>
+          <span class="sf-val-text" id="maxHighlightsVal">5,000</span>
         </div>
-      </div>
-    </section>
+        <input type="range" id="maxHighlights" min="1000" max="10000" step="500" value="5000" class="sf-slider">
+        <p class="sf-hint">Caps rendering on massive pages to guarantee fluid 60fps scrolling.</p>
+      </section>
 
-    <!-- Performance & Max Highlights -->
-    <section class="sf-card">
-      <div class="sf-card-title">Performance Limit</div>
-      <div class="sf-field-row">
-        <label for="maxHighlights">Max Matches Cap</label>
-        <span class="sf-val-badge" id="maxHighlightsVal">5,000</span>
-      </div>
-      <input type="range" id="maxHighlights" min="1000" max="10000" step="500" value="5000" class="sf-slider">
-      <p class="sf-hint">Caps rendering on massive pages to guarantee fluid 60fps scrolling.</p>
-    </section>
+      <!-- Excluded Websites -->
+      <section class="sf-section">
+        <div class="sf-section-header">EXCLUDED WEBSITES</div>
+        <p class="sf-hint" style="margin-top: 0; margin-bottom: 8px;">Sites where Darkroom Find will not intercept Ctrl+F.</p>
 
-    <!-- Excluded Websites Manager -->
-    <section class="sf-card">
-      <div class="sf-card-title">Excluded Websites (Use Native Find)</div>
-      <p class="sf-hint">Sites where Darkroom Find will not intercept Ctrl+F.</p>
+        <div class="sf-add-domain-row">
+          <input type="text" id="newDomainInput" placeholder="example.com" class="sf-input-text">
+          <button type="button" id="addDomainBtn" class="sf-action-btn">Add</button>
+        </div>
 
-      <div class="sf-add-domain-row">
-        <input type="text" id="newDomainInput" placeholder="example.com" class="sf-input-text">
-        <button type="button" id="addDomainBtn" class="sf-action-btn">Add</button>
-      </div>
-
-      <div class="sf-domain-list" id="domainList"></div>
-    </section>
+        <div class="sf-domain-list" id="domainList"></div>
+      </section>
+    </main>
 
     <!-- Footer Actions -->
     <footer class="sf-options-footer">

@@ -22,6 +22,23 @@
     typeof Highlight !== 'undefined';
 
   /**
+   * Helper to convert hex color to rgba string
+   */
+  function hexToRgba(hex, alpha) {
+    if (!hex) return `rgba(227, 199, 122, ${alpha})`;
+    let clean = String(hex).replace('#', '').trim();
+    if (clean.length === 3) {
+      clean = clean.split('').map(c => c + c).join('');
+    }
+    const num = parseInt(clean, 16);
+    if (isNaN(num)) return `rgba(227, 199, 122, ${alpha})`;
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  /**
    * Helper to draw a rounded rectangle on a canvas context
    */
   function drawRoundRect(ctx, x, y, width, height, radius) {
@@ -43,10 +60,10 @@
     constructor(shadowRoot, options = {}) {
       this.shadowRoot = shadowRoot;
       this.options = {
-        glowColor: options.glowColor || '#00f0ff',
-        currentGlowColor: options.currentGlowColor || '#ff007f',
+        glowColor: options.glowColor || '#E3C77A',
+        currentGlowColor: options.currentGlowColor || '#E8956B',
         dimOpacity: typeof options.dimOpacity === 'number' ? options.dimOpacity : 0.85,
-        dimRgb: options.dimRgb || '5, 7, 15',
+        dimRgb: options.dimRgb || '11, 12, 14',
         ...options
       };
 
@@ -79,7 +96,10 @@
     initCssCustomProperties() {
       const root = document.documentElement;
       root.style.setProperty('--sf-glow-color', this.options.glowColor);
+      root.style.setProperty('--sf-match-bg', hexToRgba(this.options.glowColor, 0.40));
       root.style.setProperty('--sf-current-glow', this.options.currentGlowColor);
+      root.style.setProperty('--sf-current-bg', this.options.currentGlowColor);
+      root.style.setProperty('--sf-current-text', '#1A1410');
     }
 
     /**
@@ -210,10 +230,7 @@
     renderFrame() {
       if (!this.isVisible) return;
 
-      // Animate subtle glow pulse on active match if motion allowed
-      const shouldAnimatePulse = !this.prefersReducedMotion && this.currentIndex >= 0;
-
-      if (this.needsRedraw || shouldAnimatePulse) {
+      if (this.needsRedraw) {
         this.drawOverlay();
         this.drawMinimap();
         this.needsRedraw = false;
@@ -388,84 +405,42 @@
         }
       }
 
-      // 2. Subtle radial spotlight vignette centered on active match
-      if (currentActiveCenter) {
-        ctx.save();
-        const maxRadius = Math.max(w, h) * 0.65;
-        const vignette = ctx.createRadialGradient(
-          currentActiveCenter.x,
-          currentActiveCenter.y,
-          20,
-          currentActiveCenter.x,
-          currentActiveCenter.y,
-          maxRadius
-        );
-        vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        vignette.addColorStop(0.3, 'rgba(0, 0, 0, 0.05)');
-        vignette.addColorStop(1, 'rgba(0, 0, 0, 0.35)');
-        ctx.fillStyle = vignette;
-        ctx.fillRect(0, 0, w, h);
-        ctx.restore();
-      }
-
-      // 3. Cutout holes (destination-out) so matched text shines through with full clarity
+      // 2. Cutout holes (destination-out) so matched text shines through with full clarity
       ctx.save();
       ctx.globalCompositeOperation = 'destination-out';
       ctx.fillStyle = '#000000';
 
       for (let i = 0; i < visibleRects.length; i++) {
         const item = visibleRects[i];
-        // 2px horizontal padding, 1px vertical padding for clean text clearance
-        const padX = item.isCurrent ? 3 : 2;
-        const padY = item.isCurrent ? 2 : 1;
+        // Zero padding for exact text fit without bleeding into adjacent characters
         drawRoundRect(
           ctx,
-          item.left - padX,
-          item.top - padY,
-          item.width + padX * 2,
-          item.height + padY * 2,
-          3
+          item.left,
+          item.top,
+          item.width,
+          item.height,
+          2
         );
         ctx.fill();
       }
       ctx.restore();
 
-      // 4. Render glowing neon borders around cutouts (source-over)
+      // 3. Render clean, flat outlines around cutouts (no glow, no animation pulse)
       ctx.save();
       ctx.globalCompositeOperation = 'source-over';
-
-      const time = performance.now();
-      const pulse = this.prefersReducedMotion ? 1 : 1 + Math.sin(time / 180) * 0.25;
 
       for (let i = 0; i < visibleRects.length; i++) {
         const item = visibleRects[i];
         const isCur = item.isCurrent;
 
-        const padX = isCur ? 3 : 2;
-        const padY = isCur ? 2 : 1;
-        const x = item.left - padX;
-        const y = item.top - padY;
-        const bw = item.width + padX * 2;
-        const bh = item.height + padY * 2;
-
-        drawRoundRect(ctx, x, y, bw, bh, 3);
+        drawRoundRect(ctx, item.left, item.top, item.width, item.height, 2);
 
         if (isCur) {
-          ctx.shadowColor = this.options.currentGlowColor;
-          ctx.shadowBlur = Math.round(14 * pulse);
           ctx.strokeStyle = this.options.currentGlowColor;
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          // Second pass inner sharp line for active highlight
-          ctx.shadowBlur = 4;
-          ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 1;
           ctx.stroke();
         } else {
-          ctx.shadowColor = this.options.glowColor;
-          ctx.shadowBlur = 6;
-          ctx.strokeStyle = this.options.glowColor;
+          ctx.strokeStyle = hexToRgba(this.options.glowColor, 0.6);
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -507,13 +482,9 @@
 
         if (isCur) {
           ctx.fillStyle = this.options.currentGlowColor;
-          ctx.shadowColor = this.options.currentGlowColor;
-          ctx.shadowBlur = 6;
           ctx.fillRect(0, minimapY - 2, 8, 4);
         } else {
           ctx.fillStyle = this.options.glowColor;
-          ctx.shadowColor = this.options.glowColor;
-          ctx.shadowBlur = 2;
           ctx.fillRect(2, minimapY - 1, 5, 2);
         }
       }

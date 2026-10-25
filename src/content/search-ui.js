@@ -30,37 +30,54 @@ ${FONT_URL ? `@font-face {
 
 :host {
   all: initial;
-  font-family: 'Vazirmatn', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;
   font-size: 13px;
   line-height: 1.4;
-  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 
-  /* Universal Obsidian Glass Tokens */
-  --sf-card-bg: rgba(10, 14, 24, 0.88);
-  --sf-card-border: rgba(255, 255, 255, 0.12);
-  --sf-card-text: #f8fafc;
-  --sf-card-text-muted: #94a3b8;
-  --sf-input-bg: rgba(20, 27, 44, 0.85);
-  --sf-input-border: rgba(255, 255, 255, 0.14);
-  --sf-input-focus-border: var(--sf-glow-color, #00f0ff);
-  --sf-btn-hover: rgba(255, 255, 255, 0.1);
-  --sf-btn-active-bg: rgba(0, 240, 255, 0.2);
-  --sf-btn-active-border: var(--sf-glow-color, #00f0ff);
-  --sf-badge-bg: rgba(20, 27, 44, 0.9);
-  --sf-badge-error-bg: rgba(239, 68, 68, 0.25);
-  --sf-badge-error-text: #fca5a5;
-  --sf-history-bg: rgba(10, 14, 24, 0.96);
-  --sf-history-hover: rgba(51, 65, 85, 0.8);
-  --sf-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--sf-card-border), 0 0 24px rgba(0, 240, 255, 0.12);
+  /* Design Tokens - Dark (default) */
+  --bg: #16171A;
+  --surface: #1D1F23;
+  --surface-2: #25282D;
+  --border: #2E3238;
+  --border-strong: #3A3F46;
+  --text: #E6E8EB;
+  --text-muted: #9AA1AB;
+  --text-faint: #6B727C;
+  --accent: #8FA8C8;
+  --accent-fg: #14181D;
+  --accent-soft: rgba(143, 168, 200, 0.14);
+  --danger: #C97B7B;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --sf-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
 
+@media (prefers-color-scheme: light) {
+  :host {
+    /* Design Tokens - Light (auto) */
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --surface-2: #F0F0ED;
+    --border: #E3E3DF;
+    --border-strong: #D0D0CB;
+    --text: #1B1D20;
+    --text-muted: #5C626B;
+    --text-faint: #8A9099;
+    --accent: #4F6D93;
+    --accent-fg: #FFFFFF;
+    --accent-soft: rgba(79, 109, 147, 0.12);
+    --danger: #C97B7B;
+  }
+}
+
+/* Floating Search Pill Container */
 .sf-search-container {
   position: fixed;
-  top: 18px;
-  right: 24px;
+  top: 16px;
+  right: 20px;
   z-index: 2147483647;
   display: flex;
   flex-direction: column;
@@ -69,76 +86,76 @@ ${FONT_URL ? `@font-face {
   user-select: none;
   -webkit-user-select: none;
   opacity: 0;
-  transform: translateY(-12px) scale(0.98);
-  transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(-4px);
+  transition: opacity 140ms ease-out, transform 140ms ease-out;
   font-family: inherit;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color: var(--text);
 }
 
 .sf-search-container.sf-active {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
+/* Compact Floating Pill (40px height, max 560px) */
 .sf-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: var(--sf-card-bg);
-  border: 1px solid var(--sf-card-border);
-  border-radius: 9999px;
-  box-shadow: var(--sf-shadow);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  color: var(--sf-card-text);
+  gap: 4px;
+  height: 40px;
+  max-width: 560px;
+  padding: 0 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  color: var(--text);
   box-sizing: border-box;
 }
 
+/* Brand Icon (20px flat magnifier in text-muted, no gradient, no glow) */
 .sf-brand-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--sf-glow-color, #00f0ff), var(--sf-current-glow, #ff007f));
-  color: #ffffff;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  color: var(--text-muted);
   flex-shrink: 0;
-  cursor: grab;
-  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 .sf-brand-icon svg {
-  width: 13px !important;
-  height: 13px !important;
+  width: 15px;
+  height: 15px;
   fill: currentColor;
   display: block;
 }
 
+/* Search Input Area */
 .sf-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 140px;
 }
 
 .sf-input {
-  width: 210px;
-  height: 30px;
+  width: 100%;
+  height: 28px;
   padding: 0 10px;
-  background: var(--sf-input-bg);
-  border: 1px solid var(--sf-input-border);
-  border-radius: 9999px;
-  color: var(--sf-card-text);
-  font-size: 13px;
-  font-family: 'Vazirmatn', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, sans-serif;
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 120ms ease-out;
   direction: auto;
   unicode-bidi: plaintext;
   -webkit-font-smoothing: antialiased;
@@ -146,101 +163,124 @@ ${FONT_URL ? `@font-face {
 }
 
 .sf-input:focus {
-  border-color: var(--sf-input-focus-border);
-  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.25), 0 0 12px rgba(0, 240, 255, 0.2);
+  border-color: var(--accent);
+}
+
+.sf-input::selection {
+  background: var(--accent-soft);
+  color: var(--text);
 }
 
 .sf-input::placeholder {
-  color: var(--sf-card-text-muted);
+  color: var(--text-faint);
 }
 
+/* Match Counter (plain mono text, no pill background, min-width 44px) */
 .sf-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 58px;
-  height: 24px;
-  padding: 0 8px;
-  background: var(--sf-badge-bg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sf-card-text-muted);
+  min-width: 44px;
+  height: 28px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--sf-font-mono);
+  color: var(--text-muted);
   white-space: nowrap;
   box-sizing: border-box;
-  letter-spacing: 0.3px;
-  font-family: 'Inter', system-ui, sans-serif;
+  text-align: center;
   direction: ltr;
 }
 
 .sf-badge.sf-badge-has-matches {
-  color: var(--sf-card-text);
-  border-color: rgba(0, 240, 255, 0.3);
+  color: var(--text);
+}
+
+.sf-badge.sf-badge-no-matches {
+  color: var(--danger);
 }
 
 .sf-badge.sf-badge-error {
-  background: var(--sf-badge-error-bg);
-  color: var(--sf-badge-error-text);
-  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--danger);
 }
 
+/* Button Groups */
 .sf-btn-group {
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
+/* Toggles & Icon Buttons (28x28px, radius 6px) */
 .sf-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   padding: 0;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 6px;
-  color: var(--sf-card-text-muted);
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
-  font-family: inherit;
+  font-weight: 500;
+  font-family: var(--sf-font-mono);
   outline: none;
-  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+  transition: background-color 120ms ease-out, color 120ms ease-out, border-color 120ms ease-out;
   position: relative;
   box-sizing: border-box;
 }
 
 .sf-btn:hover {
-  background: var(--sf-btn-hover);
-  color: var(--sf-card-text);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .sf-btn:active {
-  transform: scale(0.96);
+  background: var(--border);
 }
 
+.sf-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Active Toggle: accent-soft background, accent text & 1px accent border */
 .sf-btn[aria-pressed="true"] {
-  background: var(--sf-btn-active-bg);
-  color: var(--sf-input-focus-border);
-  border-color: var(--sf-btn-active-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .sf-btn svg {
-  width: 14px !important;
-  height: 14px !important;
+  width: 16px;
+  height: 16px;
   fill: currentColor;
   display: block;
 }
 
+/* Close button hover danger color */
+.sf-btn.sf-btn-close:hover {
+  color: var(--danger);
+}
+
+/* Hairline Divider */
 .sf-divider {
   width: 1px;
   height: 16px;
-  background: var(--sf-card-border);
-  margin: 0 2px;
+  background: var(--border);
+  margin: 0 4px;
+  flex-shrink: 0;
 }
 
+/* Tooltip on hover */
 .sf-btn[data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -248,31 +288,31 @@ ${FONT_URL ? `@font-face {
   left: 50%;
   transform: translateX(-50%);
   padding: 3px 6px;
-  background: rgba(10, 15, 25, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: #ffffff;
-  font-size: 10px;
+  color: var(--text);
+  font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
   z-index: 2147483647;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;
 }
 
+/* Search History Dropdown Menu */
 .sf-history-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
   width: 240px;
   max-height: 220px;
   overflow-y: auto;
-  background: var(--sf-history-bg);
-  border: 1px solid var(--sf-card-border);
-  border-radius: 12px;
-  box-shadow: var(--sf-shadow);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   padding: 4px;
   display: none;
   flex-direction: column;
@@ -285,37 +325,39 @@ ${FONT_URL ? `@font-face {
 
 .sf-history-header {
   padding: 6px 8px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--sf-card-text-muted);
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  font-family: inherit;
 }
 
 .sf-history-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: var(--sf-card-text);
-  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 12.5px;
   cursor: pointer;
-  transition: background-color 100ms ease;
+  transition: background-color 100ms ease-out;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  direction: auto;
 }
 
 .sf-history-item:hover {
-  background: var(--sf-history-hover);
+  background: var(--surface-2);
 }
 
 .sf-history-empty {
   padding: 10px;
   text-align: center;
-  color: var(--sf-card-text-muted);
-  font-size: 11px;
+  color: var(--text-faint);
+  font-size: 11.5px;
 }
 
 .sf-sr-only {
@@ -327,6 +369,16 @@ ${FONT_URL ? `@font-face {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-search-container,
+  .sf-btn,
+  .sf-input,
+  .sf-history-item {
+    transition: none !important;
+    transform: none !important;
+  }
 }
 `;
 
@@ -377,13 +429,13 @@ ${FONT_URL ? `@font-face {
       this.container.className = 'sf-search-container';
       this.container.setAttribute('role', 'dialog');
       this.container.setAttribute('aria-label', 'Darkroom In-Page Search');
-      this.container.style.cssText = 'position: fixed; top: 18px; right: 24px; z-index: 2147483647; display: flex; flex-direction: column; align-items: flex-end; pointer-events: auto;';
+      this.container.style.cssText = 'position: fixed; top: 16px; right: 20px; z-index: 2147483647; display: flex; flex-direction: column; align-items: flex-end; pointer-events: auto;';
 
       this.container.innerHTML = `
-        <div class="sf-pill" style="display: flex; align-items: center; gap: 6px; box-sizing: border-box;">
+        <div class="sf-pill">
           <!-- Spotlight Brand Icon -->
-          <div class="sf-brand-icon" title="Darkroom Find" style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 22px; max-height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
-            <svg width="13" height="13" viewBox="0 0 24 24" style="width: 13px !important; height: 13px !important; max-width: 13px; max-height: 13px; display: block; fill: currentColor; flex-shrink: 0;">
+          <div class="sf-brand-icon" title="Darkroom Find">
+            <svg viewBox="0 0 24 24">
               <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
             </svg>
           </div>
@@ -403,8 +455,8 @@ ${FONT_URL ? `@font-face {
             />
           </div>
 
-          <!-- Match Counter Badge -->
-          <div class="sf-badge" aria-hidden="true">0 / 0</div>
+          <!-- Match Counter -->
+          <div class="sf-badge" aria-hidden="true" aria-live="polite">0 / 0</div>
 
           <!-- Option Toggles -->
           <div class="sf-btn-group">
@@ -419,10 +471,10 @@ ${FONT_URL ? `@font-face {
           <!-- Navigation Prev/Next -->
           <div class="sf-btn-group">
             <button type="button" class="sf-btn sf-btn-prev" data-tooltip="Previous (Shift+Enter)" aria-label="Previous Match">
-              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
             </button>
             <button type="button" class="sf-btn sf-btn-next" data-tooltip="Next (Enter)" aria-label="Next Match">
-              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
             </button>
           </div>
 
@@ -431,13 +483,13 @@ ${FONT_URL ? `@font-face {
           <!-- Auxiliary Actions -->
           <div class="sf-btn-group">
             <button type="button" class="sf-btn sf-btn-history" data-tooltip="Search History" aria-label="Search History">
-              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
             </button>
             <button type="button" class="sf-btn sf-btn-bypass" data-tooltip="Chrome Native Find (Ctrl+F twice)" aria-label="Use Chrome Native Find">
-              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
             </button>
             <button type="button" class="sf-btn sf-btn-close" data-tooltip="Close (Esc)" aria-label="Close Search">
-              <svg width="14" height="14" viewBox="0 0 24 24" style="width: 14px !important; height: 14px !important; display: block; fill: currentColor; flex-shrink: 0;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             </button>
           </div>
         </div>
@@ -644,7 +696,7 @@ ${FONT_URL ? `@font-face {
      * Update match counter badge & accessibility announcement
      */
     updateStatus({ current, total, capped, error }) {
-      this.badge.classList.remove('sf-badge-error', 'sf-badge-has-matches');
+      this.badge.classList.remove('sf-badge-error', 'sf-badge-has-matches', 'sf-badge-no-matches');
 
       if (error) {
         this.badge.textContent = 'Regex Error';
@@ -658,6 +710,9 @@ ${FONT_URL ? `@font-face {
 
       if (total === 0) {
         this.badge.textContent = '0 / 0';
+        if (this.input && this.input.value && this.input.value.trim()) {
+          this.badge.classList.add('sf-badge-no-matches');
+        }
         this.srLive.textContent = 'No matches found';
         return;
       }
