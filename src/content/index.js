@@ -87,6 +87,7 @@
 
   // Instantiate Search UI
   const searchUI = new SpotlightSearchUI(shadowRoot, {
+    language: settings.language || 'en',
     matchCase: settings.matchCase,
     wholeWord: settings.wholeWord,
     useRegex: settings.useRegex,
@@ -258,6 +259,10 @@
 
       if ('excludedDomains' in changes) {
         isHostExcluded = SpotlightConfig.isHostExcluded(location.hostname, settings.excludedDomains);
+      }
+
+      if ('language' in changes) {
+        searchUI.setLanguage(changes.language);
       }
 
       renderer.updateConfig({

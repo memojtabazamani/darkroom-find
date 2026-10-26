@@ -69,7 +69,8 @@
     wholeWord: false,
     useRegex: false,
     multiTerm: false,
-    bypassNativeFind: false
+    bypassNativeFind: false,
+    language: 'en'
   };
 
   /**
@@ -102,6 +103,9 @@
       } else {
         result.dimOpacity = DEFAULT_SETTINGS.dimOpacity;
       }
+    }
+    if (!result.language || (result.language !== 'en' && result.language !== 'fa')) {
+      result.language = DEFAULT_SETTINGS.language;
     }
     delete result.themeMode;
     delete result.dimOpacityDark;

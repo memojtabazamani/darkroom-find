@@ -411,6 +411,7 @@ ${FONT_URL ? `@font-face {
       this.debounceTimer = null;
       this.isOpen = false;
       this.previousFocusedElement = null;
+      this.currentLang = options.language || 'en';
 
       this.initDOM();
       this.bindEvents();
@@ -517,6 +518,47 @@ ${FONT_URL ? `@font-face {
       this.setToggleState('.sf-toggle-word', this.options.wholeWord);
       this.setToggleState('.sf-toggle-regex', this.options.useRegex);
       this.setToggleState('.sf-toggle-multi', this.options.multiTerm);
+
+      this.setLanguage(this.currentLang);
+    }
+
+    setLanguage(lang) {
+      this.currentLang = lang || 'en';
+      if (!this.container) return;
+
+      const t = (key, ...args) => {
+        if (typeof SpotlightI18n !== 'undefined' && SpotlightI18n.t) {
+          return SpotlightI18n.t(key, this.currentLang, ...args);
+        }
+        return key;
+      };
+
+      if (this.input) {
+        this.input.placeholder = t('findBar.placeholder');
+      }
+
+      const setBtn = (selector, tooltipKey, ariaKey) => {
+        const btn = this.container.querySelector(selector);
+        if (btn) {
+          btn.setAttribute('data-tooltip', t(tooltipKey));
+          if (ariaKey) btn.setAttribute('aria-label', t(ariaKey));
+        }
+      };
+
+      setBtn('.sf-toggle-case', 'findBar.toggleCase', 'findBar.toggleCase');
+      setBtn('.sf-toggle-word', 'findBar.toggleWord', 'findBar.toggleWord');
+      setBtn('.sf-toggle-regex', 'findBar.toggleRegex', 'findBar.toggleRegex');
+      setBtn('.sf-toggle-multi', 'findBar.toggleMultiTerm', 'findBar.toggleMultiTerm');
+      setBtn('.sf-btn-prev', 'findBar.prevMatch', 'findBar.prevMatch');
+      setBtn('.sf-btn-next', 'findBar.nextMatch', 'findBar.nextMatch');
+      setBtn('.sf-btn-history', 'findBar.historyBtn', 'findBar.historyBtn');
+      setBtn('.sf-btn-bypass', 'findBar.nativeFindBtn', 'findBar.nativeFindBtn');
+      setBtn('.sf-btn-close', 'findBar.closeBtn', 'findBar.closeBtn');
+
+      const historyHeader = this.container.querySelector('.sf-history-header');
+      if (historyHeader) {
+        historyHeader.textContent = t('findBar.historyHeader');
+      }
     }
 
     setToggleState(selector, active) {
@@ -667,7 +709,10 @@ ${FONT_URL ? `@font-face {
       listContainer.innerHTML = '';
 
       if (history.length === 0) {
-        listContainer.innerHTML = '<div class="sf-history-empty">No recent searches</div>';
+        const emptyMsg = typeof SpotlightI18n !== 'undefined'
+          ? SpotlightI18n.t('findBar.historyEmpty', this.currentLang)
+          : 'No recent searches';
+        listContainer.innerHTML = `<div class="sf-history-empty">${emptyMsg}</div>`;
       } else {
         history.forEach((query) => {
           const item = document.createElement('div');
@@ -698,11 +743,19 @@ ${FONT_URL ? `@font-face {
     updateStatus({ current, total, capped, error }) {
       this.badge.classList.remove('sf-badge-error', 'sf-badge-has-matches', 'sf-badge-no-matches');
 
+      const t = (key, ...args) => {
+        if (typeof SpotlightI18n !== 'undefined' && SpotlightI18n.t) {
+          return SpotlightI18n.t(key, this.currentLang, ...args);
+        }
+        return '';
+      };
+
       if (error) {
-        this.badge.textContent = 'Regex Error';
+        const errLabel = t('findBar.regexError') || 'Regex Error';
+        this.badge.textContent = errLabel;
         this.badge.classList.add('sf-badge-error');
         this.badge.title = error;
-        this.srLive.textContent = `Search error: ${error}`;
+        this.srLive.textContent = `${errLabel}: ${error}`;
         return;
       }
 
@@ -713,7 +766,7 @@ ${FONT_URL ? `@font-face {
         if (this.input && this.input.value && this.input.value.trim()) {
           this.badge.classList.add('sf-badge-no-matches');
         }
-        this.srLive.textContent = 'No matches found';
+        this.srLive.textContent = t('findBar.noMatches') || 'No matches found';
         return;
       }
 
@@ -722,7 +775,10 @@ ${FONT_URL ? `@font-face {
       const totalDisplay = capped ? `${total}+` : `${total}`;
 
       this.badge.textContent = `${curDisplay} / ${totalDisplay}`;
-      this.srLive.textContent = `Match ${curDisplay} of ${totalDisplay}`;
+      const statusText = typeof SpotlightI18n !== 'undefined'
+        ? SpotlightI18n.t('findBar.matchStatus', this.currentLang, curDisplay, total, capped)
+        : `Match ${curDisplay} of ${totalDisplay}`;
+      this.srLive.textContent = statusText;
     }
 
     /**

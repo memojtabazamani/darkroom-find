@@ -7,6 +7,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   let settings = await SpotlightConfig.getSettings();
   let currentTab = null;
+  let currentLang = settings.language || 'en';
 
   // Query DOM elements
   const primaryModKey = document.getElementById('primaryModKey');
@@ -14,6 +15,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const secKey1 = document.getElementById('secKey1');
   const secKey2 = document.getElementById('secKey2');
   const secKey3 = document.getElementById('secKey3');
+
+  const langToggleBtn = document.getElementById('langToggleBtn');
+  const langTagEn = document.getElementById('langTagEn');
+  const langTagFa = document.getElementById('langTagFa');
 
   const dimOpacityInput = document.getElementById('dimOpacity');
   const dimOpacityVal = document.getElementById('dimOpacityVal');
@@ -31,8 +36,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Preview elements
   const previewBox = document.getElementById('previewBox');
+  const previewTextBefore = document.getElementById('previewTextBefore');
   const prevMatch = document.getElementById('prevMatch');
+  const previewTextMid = document.getElementById('previewTextMid');
   const prevCurrent = document.getElementById('prevCurrent');
+  const previewTextAfter = document.getElementById('previewTextAfter');
 
   // Site toggle card
   const siteToggleCard = document.getElementById('siteToggleCard');
@@ -48,6 +56,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveTimeout = setTimeout(() => {
       saveIndicator.classList.remove('visible');
     }, 1500);
+  }
+
+  /**
+   * Apply selected language across options UI
+   */
+  function applyLanguage(lang) {
+    currentLang = lang;
+    const dir = SpotlightI18n.getDirection(lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = dir;
+    document.body.dir = dir;
+
+    // Update all declarative data-i18n elements
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      if (key) {
+        el.textContent = SpotlightI18n.t(key, lang);
+      }
+    });
+
+    // Update language switcher active indicator
+    if (langTagEn && langTagFa) {
+      langTagEn.classList.toggle('active', lang === 'en');
+      langTagFa.classList.toggle('active', lang === 'fa');
+    }
+    if (langToggleBtn) {
+      langToggleBtn.title = SpotlightI18n.t('options.langSwitchTitle', lang);
+    }
+
+    // Update live preview phrase
+    if (previewTextBefore) previewTextBefore.textContent = SpotlightI18n.t('options.previewTextBefore', lang);
+    if (prevMatch) prevMatch.textContent = SpotlightI18n.t('options.previewMatch', lang);
+    if (previewTextMid) previewTextMid.textContent = SpotlightI18n.t('options.previewTextMid', lang);
+    if (prevCurrent) prevCurrent.textContent = SpotlightI18n.t('options.previewCurrent', lang);
+    if (previewTextAfter) previewTextAfter.textContent = SpotlightI18n.t('options.previewTextAfter', lang);
+
+    // Update dynamic sections
+    renderDomainList();
+    updateSiteToggleCard();
+  }
+
+  // Language toggle button listener
+  if (langToggleBtn) {
+    langToggleBtn.addEventListener('click', async () => {
+      currentLang = currentLang === 'en' ? 'fa' : 'en';
+      settings = await SpotlightConfig.saveSettings({ language: currentLang });
+      applyLanguage(currentLang);
+      showSaved();
+    });
   }
 
   /**
@@ -161,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const domains = settings.excludedDomains || [];
 
     if (domains.length === 0) {
-      domainList.innerHTML = '<div style="color:var(--text-hint);font-size:11px;padding:4px;">No excluded websites</div>';
+      domainList.innerHTML = `<div style="color:var(--text-hint);font-size:11px;padding:4px;">${SpotlightI18n.t('options.noExcludedDomains', currentLang)}</div>`;
       return;
     }
 
@@ -175,7 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const removeBtn = document.createElement('button');
       removeBtn.className = 'sf-domain-item-remove';
       removeBtn.innerHTML = '&times;';
-      removeBtn.title = 'Remove exclusion';
+      removeBtn.title = SpotlightI18n.t('options.removeExclusion', currentLang);
       removeBtn.addEventListener('click', async () => {
         const updated = domains.filter((d) => d.toLowerCase() !== domain.toLowerCase());
         settings = await SpotlightConfig.saveSettings({ excludedDomains: updated });
@@ -211,12 +268,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isExcluded = SpotlightConfig.isHostExcluded(host, settings.excludedDomains);
       if (isExcluded) {
         siteStatusDot.className = 'sf-site-status-dot disabled';
-        siteDescLabel.textContent = 'Darkroom Disabled on this site';
-        siteToggleBtn.textContent = 'Enable';
+        siteDescLabel.textContent = SpotlightI18n.t('options.siteDisabled', currentLang);
+        siteToggleBtn.textContent = SpotlightI18n.t('options.enable', currentLang);
       } else {
         siteStatusDot.className = 'sf-site-status-dot';
-        siteDescLabel.textContent = 'Darkroom Active on this site';
-        siteToggleBtn.textContent = 'Disable';
+        siteDescLabel.textContent = SpotlightI18n.t('options.siteActive', currentLang);
+        siteToggleBtn.textContent = SpotlightI18n.t('options.disable', currentLang);
       }
     } catch {
       siteToggleCard.style.display = 'none';
@@ -353,16 +410,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Reset to Defaults
   resetBtn.addEventListener('click', async () => {
-    if (confirm('Reset all settings to default values?')) {
+    const confirmMsg = SpotlightI18n.t('options.resetConfirm', currentLang);
+    if (confirm(confirmMsg)) {
       settings = await SpotlightConfig.saveSettings(SpotlightConfig.DEFAULT_SETTINGS);
+      currentLang = settings.language || 'en';
+      applyLanguage(currentLang);
       populateForm();
-      updateSiteToggleCard();
       showSaved();
     }
   });
 
   // Initialize
   setupShortcutHero();
+  applyLanguage(currentLang);
   populateForm();
   updateSiteToggleCard();
 });

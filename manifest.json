@@ -36,6 +36,7 @@
       ],
       "js": [
         "src/common/config.js",
+        "src/common/i18n.js",
         "src/content/search-engine.js",
         "src/content/spotlight-renderer.js",
         "src/content/search-ui.js",
