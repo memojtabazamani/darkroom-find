@@ -412,6 +412,10 @@ ${FONT_URL ? `@font-face {
       this.isOpen = false;
       this.previousFocusedElement = null;
       this.currentLang = options.language || 'en';
+      this.pointerDownInside = false;
+
+      this.onOutsidePointerDown = this.onOutsidePointerDown.bind(this);
+      this.onOutsideClick = this.onOutsideClick.bind(this);
 
       this.initDOM();
       this.bindEvents();
@@ -787,6 +791,38 @@ ${FONT_URL ? `@font-face {
      */
     applyTheme() {}
 
+    // ponytail: capture-phase window pointerdown/click handles light dismiss across shadow DOM boundary; upgrade to native popover when host elements support cross-root light dismiss cleanly.
+    isEventInside(e) {
+      if (e.composedPath) {
+        const path = e.composedPath();
+        if (path.includes(this.container)) return true;
+        if (path.some((el) => el && el.classList && el.classList.contains('sf-minimap-canvas'))) return true;
+      }
+      return Boolean(this.container && e.target && this.container.contains(e.target));
+    }
+
+    onOutsidePointerDown(e) {
+      if (!this.isOpen) return;
+      if (this.isEventInside(e)) {
+        this.pointerDownInside = true;
+        return;
+      }
+      this.pointerDownInside = false;
+      this.hide();
+    }
+
+    onOutsideClick(e) {
+      if (!this.isOpen) return;
+      if (this.pointerDownInside) {
+        this.pointerDownInside = false;
+        return;
+      }
+      if (this.isEventInside(e)) {
+        return;
+      }
+      this.hide();
+    }
+
     /**
      * Show search UI and capture preselected text
      */
@@ -799,9 +835,13 @@ ${FONT_URL ? `@font-face {
       }
 
       this.isOpen = true;
+      this.pointerDownInside = false;
       this.previousFocusedElement = activeElement || document.activeElement;
 
       this.container.classList.add('sf-active');
+
+      window.addEventListener('pointerdown', this.onOutsidePointerDown, true);
+      window.addEventListener('click', this.onOutsideClick, true);
 
       if (initialQuery) {
         this.input.value = initialQuery;
@@ -823,6 +863,11 @@ ${FONT_URL ? `@font-face {
     hide() {
       if (!this.isOpen) return;
       this.isOpen = false;
+      this.pointerDownInside = false;
+
+      window.removeEventListener('pointerdown', this.onOutsidePointerDown, true);
+      window.removeEventListener('click', this.onOutsideClick, true);
+
       this.closeHistoryMenu();
 
       this.container.classList.remove('sf-active');
