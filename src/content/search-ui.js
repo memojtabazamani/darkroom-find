@@ -15,19 +15,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const FONT_URL = (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL)
-    ? chrome.runtime.getURL('fonts/Vazirmatn-Medium.woff2')
-    : '';
-
+  // ponytail: use system font stack ('Inter', 'Segoe UI', system-ui, -apple-system, sans-serif) in content script; avoids cross-origin chrome-extension:// woff2 fetch blocked by host frame CSP/COEP.
   const SEARCH_UI_CSS = `
-${FONT_URL ? `@font-face {
-  font-family: 'Vazirmatn';
-  src: url('${FONT_URL}') format('woff2');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}` : ''}
-
 :host {
   all: initial;
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Vazirmatn', sans-serif;

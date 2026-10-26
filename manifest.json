@@ -49,18 +49,6 @@
       "all_frames": false
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "src/content/search-ui.css",
-        "src/content/page-highlights.css",
-        "fonts/Vazirmatn-Medium.woff2"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ],
   "commands": {
     "toggle-spotlight": {
       "suggested_key": {
