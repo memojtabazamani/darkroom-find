@@ -31,7 +31,7 @@
     isHostExcluded = SpotlightConfig.isHostExcluded(location.hostname, settings.excludedDomains);
   }
 
-  // Create isolated Shadow DOM host
+  // Create isolated Shadow DOM host (attached on-demand when search opens, unmounted on close)
   const hostElement = document.createElement('div');
   hostElement.id = 'spotlight-find-host';
   hostElement.style.cssText = 'all: initial; position: fixed !important; top: 0 !important; left: 0 !important; width: 0 !important; height: 0 !important; overflow: visible !important; z-index: 2147483647 !important; pointer-events: none !important; direction: ltr !important;';
@@ -40,11 +40,9 @@
   // because it is a plain DIV, decide the user is NOT typing in a field — so they trigger
   // their own shortcuts (e.g. GitHub command bar) over our UI. Marking the host contenteditable
   // makes their "is the user typing?" guards (isContentEditable / closest('[contenteditable]'))
-  // pass, as defense-in-depth on top of stopPropagation() in search-ui.js. tabindex="-1" keeps
-  // it out of keyboard tab order (the host is pointer-events: none, zero-sized, and never focused).
-  hostElement.setAttribute('contenteditable', 'true');
-  hostElement.setAttribute('tabindex', '-1');
-  (document.body || document.documentElement).appendChild(hostElement);
+  // pass, as defense-in-depth on top of stopPropagation() in search-ui.js.
+  // Note: Do NOT set tabindex="-1" or contenteditable without pointer-events/focus isolation,
+  // as Chrome will refuse or steal focus from shadowRoot inner input during DOM insertion.
 
   const shadowRoot = hostElement.attachShadow({ mode: 'open' });
 
@@ -136,7 +134,14 @@
     },
 
     onClose: () => {
+      if (activeSearchAbortController) {
+        activeSearchAbortController.abort();
+        activeSearchAbortController = null;
+      }
+      currentMatches = [];
+      currentMatchIndex = -1;
       renderer.hide();
+      scheduleHostUnmount();
     },
 
     onToggleOption: (optionKey, value) => {
@@ -147,18 +152,46 @@
     },
 
     onBypassNative: () => {
-      searchUI.hide();
-      renderer.hide();
+      closeSpotlight();
       bypassNativeUntil = Date.now() + 2000;
       // Guide user to press Ctrl+F for native find
     }
   });
+
+  let hostRemoveTimer = null;
+
+  function ensureHostMounted() {
+    if (hostRemoveTimer) {
+      clearTimeout(hostRemoveTimer);
+      hostRemoveTimer = null;
+    }
+    const target = document.body || document.documentElement;
+    if (target && !hostElement.parentNode) {
+      target.appendChild(hostElement);
+    }
+    hostElement.style.display = '';
+  }
+
+  function scheduleHostUnmount() {
+    if (hostRemoveTimer) {
+      clearTimeout(hostRemoveTimer);
+    }
+    // Wait for 200ms CSS fade-out transition to finish, then safely remove host element
+    hostRemoveTimer = setTimeout(() => {
+      if (!searchUI.isOpen && hostElement && hostElement.parentNode) {
+        hostElement.parentNode.removeChild(hostElement);
+      }
+      hostRemoveTimer = null;
+    }, 250);
+  }
 
   /**
    * Open Darkroom Find session
    */
   function openSpotlight() {
     if (isHostExcluded) return;
+
+    ensureHostMounted();
 
     // Check selected text on the page
     let queryToUse = '';
@@ -177,8 +210,16 @@
    * Close Darkroom Find session
    */
   function closeSpotlight() {
+    if (activeSearchAbortController) {
+      activeSearchAbortController.abort();
+      activeSearchAbortController = null;
+    }
+    currentMatches = [];
+    currentMatchIndex = -1;
+
     searchUI.hide();
     renderer.hide();
+    scheduleHostUnmount();
   }
 
   /**
@@ -224,6 +265,9 @@
       // Intercept Ctrl+F and launch Darkroom Find
       e.preventDefault();
       e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') {
+        e.stopImmediatePropagation();
+      }
 
       openSpotlight();
     },

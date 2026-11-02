@@ -67,12 +67,13 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  pointer-events: auto;
+  pointer-events: none;
+  visibility: hidden;
   user-select: none;
   -webkit-user-select: none;
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity 140ms ease-out, transform 140ms ease-out;
+  transition: opacity 140ms ease-out, transform 140ms ease-out, visibility 140ms ease-out;
   font-family: inherit;
   color: var(--text);
 }
@@ -80,6 +81,8 @@
 .sf-search-container.sf-active {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: auto;
+  visibility: visible;
 }
 
 /* Compact Floating Pill (40px height, max 560px) */

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Darkroom Find — In-Page Search",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cinematic lights-off, phosphorescent-glow Ctrl+F in-page search with zero DOM mutation, regex, and smooth navigation.",
   "icons": {
     "16": "icons/icon16.png",
