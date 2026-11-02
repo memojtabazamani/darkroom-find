@@ -131,7 +131,7 @@
         right: 0;
         width: 8px;
         height: 100%;
-        pointer-events: auto;
+        pointer-events: none;
         cursor: pointer;
         z-index: 2147483647;
         opacity: 0;
@@ -173,6 +173,7 @@
 
       this.canvas.style.opacity = '1';
       this.minimapCanvas.style.opacity = '1';
+      this.minimapCanvas.style.pointerEvents = 'auto';
 
       // Capture scroll from window and all scrollable containers
       window.addEventListener('scroll', this.onScroll, { capture: true, passive: true });
@@ -190,6 +191,7 @@
 
       this.canvas.style.opacity = '0';
       this.minimapCanvas.style.opacity = '0';
+      this.minimapCanvas.style.pointerEvents = 'none';
 
       window.removeEventListener('scroll', this.onScroll, { capture: true });
       window.removeEventListener('resize', this.onResize);
