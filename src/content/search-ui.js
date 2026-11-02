@@ -71,12 +71,13 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  pointer-events: auto;
+  pointer-events: none;
+  visibility: hidden;
   user-select: none;
   -webkit-user-select: none;
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity 140ms ease-out, transform 140ms ease-out;
+  transition: opacity 140ms ease-out, transform 140ms ease-out, visibility 140ms ease-out;
   font-family: inherit;
   color: var(--text);
 }
@@ -84,6 +85,8 @@
 .sf-search-container.sf-active {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: auto;
+  visibility: visible;
 }
 
 /* Compact Floating Pill (40px height, max 560px) */
@@ -423,7 +426,7 @@
       this.container.className = 'sf-search-container';
       this.container.setAttribute('role', 'dialog');
       this.container.setAttribute('aria-label', 'Darkroom In-Page Search');
-      this.container.style.cssText = 'position: fixed; top: 16px; right: 20px; z-index: 2147483647; display: flex; flex-direction: column; align-items: flex-end; pointer-events: auto;';
+      this.container.style.cssText = 'position: fixed; top: 16px; right: 20px; z-index: 2147483647; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none; visibility: hidden;';
 
       this.container.innerHTML = `
         <div class="sf-pill">
@@ -576,7 +579,10 @@
       for (const type of LEAKABLE_EVENTS) {
         this.shadowRoot.addEventListener(type, (e) => {
           e.stopPropagation();
-        });
+          if (typeof e.stopImmediatePropagation === 'function') {
+            e.stopImmediatePropagation();
+          }
+        }, true);
       }
 
       // Input typing with ~60ms debounce
@@ -828,6 +834,8 @@
       this.previousFocusedElement = activeElement || document.activeElement;
 
       this.container.classList.add('sf-active');
+      this.container.style.pointerEvents = 'auto';
+      this.container.style.visibility = 'visible';
 
       window.addEventListener('pointerdown', this.onOutsidePointerDown, true);
       window.addEventListener('click', this.onOutsideClick, true);
@@ -836,14 +844,25 @@
         this.input.value = initialQuery;
       }
 
-      // Defer focus slightly to ensure smooth render
-      requestAnimationFrame(() => {
-        this.input.focus();
+      // Reliable multi-phase focus schedule
+      // Focus immediately, on animation frames, and macrotasks
+      const doFocus = () => {
+        if (!this.isOpen || !this.input) return;
+        this.input.focus({ preventScroll: true });
         this.input.select();
-        if (this.input.value) {
-          this.triggerSearch();
-        }
+      };
+
+      doFocus();
+      requestAnimationFrame(() => {
+        doFocus();
+        requestAnimationFrame(doFocus);
       });
+      setTimeout(doFocus, 0);
+      setTimeout(doFocus, 50);
+
+      if (this.input.value) {
+        this.triggerSearch();
+      }
     }
 
     /**
@@ -860,14 +879,22 @@
       this.closeHistoryMenu();
 
       this.container.classList.remove('sf-active');
-      this.callbacks.onClose();
+      this.container.style.pointerEvents = 'none';
+      this.container.style.visibility = 'hidden';
 
+      // Restore focus BEFORE removing element or calling onClose
       if (this.previousFocusedElement && typeof this.previousFocusedElement.focus === 'function') {
         try {
-          this.previousFocusedElement.focus();
-        } catch {}
+          this.previousFocusedElement.focus({ preventScroll: true });
+        } catch {
+          try {
+            this.previousFocusedElement.focus();
+          } catch {}
+        }
       }
       this.previousFocusedElement = null;
+
+      this.callbacks.onClose();
     }
 
     destroy() {
